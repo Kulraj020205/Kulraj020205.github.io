@@ -29,7 +29,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);fon
 .about input[type=file]{display:block;width:100%;margin-bottom:.75rem;font:inherit;font-size:.9rem;color:var(--ink)}
 .about h2{margin:1rem 0 .6rem;font-size:1.6rem}
 .about p{margin:0 0 .9rem;font-size:1.05rem;line-height:1.6}
-.about textarea{display:block;width:100%;min-height:13rem;font:inherit;font-size:1rem;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:.6rem .75rem;margin-bottom:.6rem}
+.about textarea{display:block;width:100%;min-height:13rem;font:inherit;font-size:1rem;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:.6rem .75rem}
 .about .go{margin-right:.75rem}
 @media (min-width:60rem){.layout{grid-template-columns:17rem minmax(0,1fr)}#about{order:0;position:sticky;top:1.5rem;align-self:start}}
 [hidden]{display:none!important}
@@ -44,7 +44,7 @@ nav .brand{font-weight:800;font-size:1.3rem;color:var(--ink);margin-right:auto;b
 nav .theme{border:2px solid var(--line);border-radius:99px;padding:.25rem .9rem;font-size:.85rem}
 .title{font-family:var(--head);font-weight:800;font-size:clamp(2.9rem,11vw,5.8rem);line-height:.98;letter-spacing:-.035em;margin:3rem 0 1.1rem}
 .sub{color:var(--mute);margin:0 0 2.5rem;max-width:30rem}
-.tile{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;width:100%;text-align:left;background:var(--c);color:var(--on);border:0;border-radius:22px;padding:2.2rem 1.6rem;margin-bottom:.9rem;transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+.tile{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;width:100%;text-align:left;background:var(--c);color:var(--on);border:0;border-radius:22px;padding:2.2rem 1.6rem;margin-bottom:1rem;transition:transform .25s}
 .tile:hover{transform:translateX(.6rem) rotate(-.7deg)}
 .tile:active{transform:scale(.98)}
 .tile b{font-family:var(--head);font-weight:800;font-size:clamp(1.9rem,6vw,2.7rem);line-height:1.05;letter-spacing:-.02em;display:block}
@@ -109,7 +109,7 @@ footer{padding:3.5rem 0 2rem;font-family:var(--head);font-size:.85rem;color:var(
 </div>
 <div id="lb" hidden=""><img alt="Full size slide"></div>
 
-<script id="data" type="application/json">{"posts":[{"id":"appa1","section":"reviews","title":"I playtested Appa, and here’s why it should be on your radar","date":"2026-10-19","text":"A five-slide playtest review of Appa by Heat Death Studios.","images":["3fabda3c4e2a71436aeb297d812e5b52","1e1237226047bda801052f39b116c104","6b6c796c2e91148fb5a4d59598f33d3d","2338fa98bdaae7dcab1d37a52e71917e","08c7950e894e85ffe9cc4c2ad28910a0"]},{"id":"s2","section":"scripts","title":"Sample script: Chai at Midnight","date":"2026-10-19","text":"INT. TEA STALL - NIGHT\n\nA lone bulb hums. ASHA (20s) stirs a pot that is already done.\n\nASHA\nYou’re late.\n\nThe OLD MAN smiles and sits."},{"id":"s3","section":"writings","title":"Sample poem: Rooftop, Monsoon","date":"2026-10-19","text":"The sky clears its throat all afternoon.\nWe hang the laundry anyway.\n\nWhen the first drop lands on my wrist,\nit feels like being remembered."}],"about":"Hi, I’m Kulraj. I write reviews, scripts and short pieces, and I love video games.\n\nThis is where I keep my work. Take a look around."}</script>
+<script id="data" type="application/json">{"about":"Hi, I’m Kulraj. I write reviews, scripts and short pieces, and I love video games.\n\nThis is where I keep my work. Take a look around.","posts":[{"id":"appa1","section":"reviews","title":"I playtested Appa, and here’s why it should be on your radar","date":"2026-10-19","text":"A five-slide playtest review of Appa by Heat Death Studios.","images":["appa-1.png","appa-2.png","appa-3.png","appa-4.png","appa-5.png"]},{"id":"s2","section":"scripts","title":"Sample script: Chai at Midnight","date":"2026-10-19","text":"INT. TEA STALL - NIGHT\n\nA lone bub hums. ASHA (20s) stirs a pot that is already done.\n\nASHA\nYou’re late.\n\nThe OLD MAN smiles and sits.","images":[]},{"id":"s3","section":"writings","title":"Sample poem: Rooftop, Monsoon","date":"2026-10-19","text":"The sky clears its throat at all afternoon.\nWe hang the laundry anyway.\n\nWhen the first drop lands on my wrist,\nit feels like being remembered.","images":[]} ]}</script>
 
 <script>
 const DATA = JSON.parse(document.getElementById("data").textContent);
@@ -118,25 +118,34 @@ const SECTIONS = [
   {id:"scripts",name:"Scripts",blurb:"Short scenes and screenplays.",color:"var(--c2)"},
   {id:"writings",name:"Writings",blurb:"Stories, poems and essays.",color:"var(--c3)"}
 ];
+
+const REAL_IMAGE_FILES = ["appa-1.png","appa-2.png","appa-3.png","appa-4.png","appa-5.png"];
+const normalizeImages = () => {
+  (DATA.posts || []).forEach(post => {
+    if (!Array.isArray(post.images)) return;
+    post.images = post.images.map((imageId, index) => {
+      const raw = String(imageId ?? "").trim();
+      if (!raw) return REAL_IMAGE_FILES[index] || "";
+      const clean = raw.replace(/^images\//i, "");
+      if (/\.(png|jpg|jpeg|webp|gif|avif)$/i.test(clean)) return clean;
+      return REAL_IMAGE_FILES[index] || clean;
+    }).filter(Boolean);
+  });
+};
+normalizeImages();
+
 let view = "home", q = "", chip = "all", slide = 0, tx = null;
 const $ = s => document.querySelector(s);
-const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");
 const sec = id => SECTIONS.find(s => s.id === id);
 const sorted = () => [...DATA.posts].sort((a,b) => (b.date + b.id).localeCompare(a.date + a.id));
-const img = id => "images/" + encodeURIComponent(String(id));
-// GitHub image files often include an extension even when the post data stores only the filename stem.
-// Try common image extensions automatically if the extension-less path does not exist.
-const imageExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"];
-document.addEventListener("error", function(e) {
-  const el = e.target;
-  if (!(el instanceof HTMLImageElement)) return;
-  const raw = el.getAttribute("src") || "";
-  if (!raw.startsWith("images/")) return;
-  const tried = Number(el.dataset.extensionTry || 0);
-  if (tried >= imageExtensions.length) return;
-  el.dataset.extensionTry = String(tried + 1);
-  el.src = raw + imageExtensions[tried];
-}, true);
+const img = id => {
+  const raw = String(id ?? "").trim();
+  const clean = raw.replace(/^images\//i, "");
+  const filename = clean.includes(".") ? clean : `${clean}.png`;
+  return `images/${encodeURIComponent(filename)}`;
+};
+
 const cur = () => view.startsWith("post:") ? DATA.posts.find(p => p.id === view.slice(5)) : null;
 
 function renderAbout(){
@@ -235,6 +244,4 @@ addEventListener("scroll", setBar, {passive:true});
 $("#yr").textContent = new Date().getFullYear();
 render();
 </script>
-
-
 </body></html>

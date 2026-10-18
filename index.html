@@ -109,7 +109,7 @@ footer{padding:3.5rem 0 2rem;font-family:var(--head);font-size:.85rem;color:var(
 </div>
 <div id="lb" hidden=""><img alt="Full size slide"></div>
 
-<script id="data" type="application/json">{"about":"Hi, I’m Kulraj. I write reviews, scripts and short pieces, and I love video games.\n\nThis is where I keep my work. Take a look around.","posts":[{"id":"appa1","section":"reviews","title":"I playtested Appa, and here’s why it should be on your radar","date":"2026-10-19","text":"A five-slide playtest review of Appa by Heat Death Studios.","images":["appa-1.png","appa-2.png","appa-3.png","appa-4.png","appa-5.png"]},{"id":"s2","section":"scripts","title":"Sample script: Chai at Midnight","date":"2026-10-19","text":"INT. TEA STALL - NIGHT\n\nA lone bub hums. ASHA (20s) stirs a pot that is already done.\n\nASHA\nYou’re late.\n\nThe OLD MAN smiles and sits.","images":[]},{"id":"s3","section":"writings","title":"Sample poem: Rooftop, Monsoon","date":"2026-10-19","text":"The sky clears its throat at all afternoon.\nWe hang the laundry anyway.\n\nWhen the first drop lands on my wrist,\nit feels like being remembered.","images":[]} ]}</script>
+<script id="data" type="application/json">{"about":"Hi, I’m Kulraj. I write reviews, scripts and short pieces, and I love video games.\n\nThis is where I keep my work. Take a look around.","posts":[{"id":"appa1","section":"reviews","title":"I playtested Appa, and here’s why it should be on your radar","date":"2026-10-19","text":"A five-slide playtest review of Appa by Heat Death Studios.","images":["appa-1.png","appa-2.png","appa-3.png","appa-4.png","appa-5.png"]}]}</script>
 
 <script>
 const DATA = JSON.parse(document.getElementById("data").textContent);
@@ -204,7 +204,8 @@ function render(){
       ${SECTIONS.map(s => `<button class="tile" style="--c:${s.color}" data-go="${s.id}"><b>${s.name}</b></button>`).join("")}`;
   } else {
     const s = sec(view);
-    h = `<div class="band" style="--c:${s.color}"><h1>${s.name}</h1></div>${controls(true)}`;
+    // Add a back button when viewing a section so you can return to home easily
+    h = `<div class="band" style="--c:${s.color}"><h1>${s.name}</h1></div><button class="back" data-go="home">Back to home</button>${controls(true)}`;
   }
   $("#app").innerHTML = h; renderList(); renderAbout();
 }

@@ -97,14 +97,6 @@ h2{font-family:var(--head);font-weight:800;font-size:1.6rem;letter-spacing:-.02e
 #lb{position:fixed;inset:0;z-index:9;background:rgba(10,10,30,.94);display:flex;align-items:center;justify-content:center;padding:1rem;cursor:zoom-out}
 #lb img{max-width:100%;max-height:100%;object-fit:contain}
 footer{padding:3.5rem 0 2rem;font-family:var(--head);font-size:.85rem;color:var(--mute)}
-#admin-login{position:fixed;inset:0;z-index:20;background:rgba(10,10,30,.78);display:grid;place-items:center;padding:1rem}
-#admin-login[hidden]{display:none!important}
-#admin-login .login-card{width:min(100%,34rem);max-height:90vh;overflow:auto;background:var(--panel);color:var(--ink);border:2px solid var(--line);border-radius:18px;padding:1.25rem}
-#admin-login h2{margin:.25rem 0 .5rem}
-#admin-login p{font-size:.95rem;color:var(--mute);margin:.25rem 0 1rem}
-#admin-login input{display:block;width:100%;font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:.6rem .75rem;margin-bottom:.6rem}
-#admin-login .login-actions{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}
-#admin-login .login-error{color:var(--c2);font-size:.95rem;white-space:pre-wrap}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}.tile:hover,.row:hover .thumb{transform:none}}
 </style>
 </head>
@@ -116,7 +108,6 @@ footer{padding:3.5rem 0 2rem;font-family:var(--head);font-size:.85rem;color:var(
   <footer>© <span id="yr">2026</span> Kulraj</footer>
 </div>
 <div id="lb" hidden=""><img alt="Full size slide"></div>
-<div id="admin-login" hidden><div class="login-card"><h2>Portfolio owner login</h2><p>Connect this portfolio to the GitHub repository that hosts it. Your access token is kept in this tab only and is never saved in the page.</p><label for="gh-owner">GitHub username or organization</label><input id="gh-owner" autocomplete="username" placeholder="your-github-username"><label for="gh-repo">Repository name</label><input id="gh-repo" placeholder="portfolio-repository"><label for="gh-branch">Publishing branch</label><input id="gh-branch" value="main" placeholder="main"><label for="gh-token">GitHub access token</label><input id="gh-token" type="password" autocomplete="off" placeholder="Paste a fine-grained token with Contents: Read and write"><div class="login-actions"><button class="go" data-gh-connect>Connect</button><button class="link" data-gh-cancel>Cancel</button></div><p class="login-error" id="gh-error" role="alert"></p><p>Only create a token for this repository and grant Contents read/write access. Never share it or paste it into a public file.</p></div></div>
 
 <script id="data" type="application/json">{"posts":[{"id":"appa1","section":"reviews","title":"I playtested Appa, and here’s why it should be on your radar","date":"2026-10-19","text":"A five-slide playtest review of Appa by Heat Death Studios.","images":["3fabda3c4e2a71436aeb297d812e5b52","1e1237226047bda801052f39b116c104","6b6c796c2e91148fb5a4d59598f33d3d","2338fa98bdaae7dcab1d37a52e71917e","08c7950e894e85ffe9cc4c2ad28910a0"]},{"id":"s2","section":"scripts","title":"Sample script: Chai at Midnight","date":"2026-10-19","text":"INT. TEA STALL - NIGHT\n\nA lone bulb hums. ASHA (20s) stirs a pot that is already done.\n\nASHA\nYou’re late.\n\nThe OLD MAN smiles and sits."},{"id":"s3","section":"writings","title":"Sample poem: Rooftop, Monsoon","date":"2026-10-19","text":"The sky clears its throat all afternoon.\nWe hang the laundry anyway.\n\nWhen the first drop lands on my wrist,\nit feels like being remembered."}],"about":"Hi, I’m Kulraj. I write reviews, scripts and short pieces, and I love video games.\n\nThis is where I keep my work. Take a look around."}</script>
 
@@ -127,22 +118,18 @@ const SECTIONS = [
   {id:"scripts",name:"Scripts",blurb:"Short scenes and screenplays.",color:"var(--c2)"},
   {id:"writings",name:"Writings",blurb:"Stories, poems and essays.",color:"var(--c3)"}
 ];
-let view = "home", owner = false, assetsApi = null, q = "", chip = "all", slide = 0, tx = null, editAbout = false;
-let github = null; // Access token is memory-only; repository coordinates are not secret.
-const DEFAULT_ABOUT = "Hi, I’m Kulraj. I write reviews, scripts and short pieces, and I love video games.\n\nThis is where I keep my work. Take a look around.";
-function renderAbout(){
-  const t = DATA.about || DEFAULT_ABOUT;
-  $("#about").innerHTML = editAbout
-    ? `<h2>About me</h2><textarea id="about-text" aria-label="About me text">${esc(t)}</textarea>${assetsApi ? '<input type="file" id="about-img" accept="image/*" aria-label="Choose a photo">' : ""}${DATA.aboutPhoto ? '<p><button class="link" data-about-rm>Remove current photo</button></p>' : ""}<button class="go" data-about-save>Save</button><button class="link" data-about-cancel>Cancel</button>`
-    : `${DATA.aboutPhoto ? `<img class="av" src="/_blob/${esc(DATA.aboutPhoto)}" alt="Photo of Kulraj">` : '<div class="av" aria-hidden="true">K</div>'}<h2>About me</h2>${t.split("\n\n").filter(Boolean).map(x => `<p>${esc(x)}</p>`).join("")}${owner ? '<button class="link" data-about-edit>Edit about me</button>' : ""}`;
-}
+let view = "home", q = "", chip = "all", slide = 0, tx = null;
 const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const sec = id => SECTIONS.find(s => s.id === id);
 const sorted = () => [...DATA.posts].sort((a,b) => (b.date + b.id).localeCompare(a.date + a.id));
 const img = id => "images/" + encodeURIComponent(String(id));
 const cur = () => view.startsWith("post:") ? DATA.posts.find(p => p.id === view.slice(5)) : null;
 
+function renderAbout(){
+  const t = DATA.about || "Hi, I’m Kulraj. I write reviews, scripts and short pieces, and I love video games.\n\nThis is where I keep my work. Take a look around.";
+  $("#about").innerHTML = `${DATA.aboutPhoto ? `<img class="av" src="${img(DATA.aboutPhoto)}" alt="Photo of Kulraj">` : '<div class="av" aria-hidden="true">K</div>'}<h2>About me</h2>${t.split("\n\n").filter(Boolean).map(x => `<p>${esc(x)}</p>`).join("")}`;
+}
 function rowHTML(p){
   const s = sec(p.section), first = (p.images || [])[0];
   const ex = (p.text || "").split("\n\n")[0].slice(0,140);
@@ -152,7 +139,6 @@ function rowHTML(p){
     <span class="meta"><span class="tag">${s.name}</span><span>${esc(p.date)}</span></span>
     ${ex ? `<span class="ex">${esc(ex)}</span>` : ""}</span></button>`;
 }
-
 function postHTML(p){
   const s = sec(p.section), imgs = p.images || [];
   const paras = (p.text || "").split("\n\n").filter(Boolean).map(x => `<p>${esc(x)}</p>`).join("");
@@ -163,18 +149,15 @@ function postHTML(p){
   return `<div style="--c:${s.color}"><button class="back" data-go="${p.section}">Back to ${s.name}</button>
     <h1 class="post-t">${esc(p.title)}</h1>
     <div class="meta" style="margin:-.75rem 0 1.5rem"><span class="tag">${s.name}</span><span>${esc(p.date)}</span></div>
-    ${car}<div class="text ${p.section === "scripts" ? "script" : ""}">${paras}</div>
-    ${owner ? `<button class="link" data-del="${esc(p.id)}">Delete this post</button>` : ""}</div>`;
+    ${car}<div class="text ${p.section === "scripts" ? "script" : ""}">${paras}</div></div>`;
 }
-
 function showSlide(i){
   const p = cur(); if(!p || !p.images || !p.images.length) return;
   const n = p.images.length; slide = (i + n) % n;
-  const im = $("#car-img"); im.src = "/_blob/" + p.images[slide]; im.alt = `Slide ${slide+1} of ${n}: ${p.title}`;
+  const im = $("#car-img"); im.src = img(p.images[slide]); im.alt = `Slide ${slide+1} of ${n}: ${p.title}`;
   $("#car-count").textContent = `Slide ${slide+1} of ${n}. Tap the slide to zoom.`;
   document.querySelectorAll("[data-slide]").forEach(b => b.setAttribute("aria-current", +b.dataset.slide === slide));
 }
-
 function renderList(){
   const list = $("#list"); if(!list) return;
   const key = sec(view) ? view : chip, term = q.trim().toLowerCase();
@@ -184,29 +167,13 @@ function renderList(){
   if(ch) ch.innerHTML = [["all","All"],...SECTIONS.map(s => [s.id,s.name])].map(([id,n]) =>
     `<button data-chip="${id}" aria-pressed="${id===chip}" style="--c:${id==="all" ? "var(--ink)" : sec(id).color};--t:${id==="all" ? "var(--bg)" : "var(--on)"}">${n}</button>`).join("");
 }
-
-function composerHTML(){
-  if(!owner) return "";
-  const d = sec(view) ? view : "reviews";
-  return `<div class="composer"><h3>Add a post (only you can see this box)</h3>
-    <select id="f-sec" aria-label="Section">${SECTIONS.map(s => `<option value="${s.id}" ${s.id===d?"selected":""}>${s.name}</option>`).join("")}</select>
-    <input id="f-title" placeholder="Title" aria-label="Title">
-    <textarea id="f-text" placeholder="Write or paste your post here" aria-label="Post text"></textarea>
-    ${assetsApi ? '<input type="file" id="f-img" accept="image/*" multiple aria-label="Add images">' : ""}
-    <button class="go" data-add>Publish post</button>
-    <p class="note">Publishing saves this post to the connected GitHub repository. Visitors can see it after the site finishes deploying.</p></div>`;
-}
-
 function controls(chips){
   return `<div class="tools"><label for="q" hidden>Search posts</label><input id="q" type="search" placeholder="Search posts" value="${esc(q)}">${chips ? '<div class="chips" id="chips"></div>' : ""}</div><div id="list" aria-live="polite"></div>`;
 }
-
 function render(){
   const post = cur(), navKey = post ? post.section : view;
   $("#nav").innerHTML = `<button class="brand" data-go="home">Kulraj</button>` + SECTIONS.map(s => `<button data-go="${s.id}" ${s.id===navKey?'aria-current="page"':""}>${s.name}</button>`).join("")
-    + `<button class="theme" data-theme-toggle>Switch theme</button>`
-    + `<button class="theme" data-admin-login>${owner ? "Owner connected" : "Owner login"}</button>`
-    + (owner ? `<button class="theme" data-admin-logout>Log out</button>` : "");
+    + `<button class="theme" data-theme-toggle>Switch theme</button>`;
   $("#bar").hidden = !post; setBar();
   let h;
   if(post){ slide = 0; h = postHTML(post); }
@@ -215,121 +182,28 @@ function render(){
       ${SECTIONS.map(s => `<button class="tile" style="--c:${s.color}" data-go="${s.id}"><b>${s.name}</b></button>`).join("")}`;
   } else {
     const s = sec(view);
-    h = `<div class="band" style="--c:${s.color}"><h1>${s.name}</h1></div>${controls(false)}`;
+    h = `<div class="band" style="--c:${s.color}"><h1>${s.name}</h1></div>${controls(true)}`;
   }
-  $("#app").innerHTML = h + composerHTML(); renderList(); renderAbout();
+  $("#app").innerHTML = h; renderList(); renderAbout();
 }
-
 function setBar(){
   const b = $("#bar"); if(b.hidden) return;
   const m = document.documentElement.scrollHeight - innerHeight;
   b.style.transform = `scaleX(${m > 0 ? Math.min(1, scrollY / m) : 1})`;
 }
-
-function b64FromBytes(bytes){
-  let binary = ""; const chunk = 0x8000;
-  for(let i=0;i<bytes.length;i+=chunk) binary += String.fromCharCode(...bytes.subarray(i,i+chunk));
-  return btoa(binary);
-}
-function b64FromText(value){ return b64FromBytes(new TextEncoder().encode(value)); }
-function githubHeaders(){ return {"Accept":"application/vnd.github+json","Authorization":"Bearer "+github.token,"X-GitHub-Api-Version":"2022-11-28"}; }
-function contentsUrl(path){ return `https://api.github.com/repos/${encodeURIComponent(github.owner)}/${encodeURIComponent(github.repo)}/contents/${path.split("/").map(encodeURIComponent).join("/")}`; }
-async function githubJson(url, options={}){
-  const response = await fetch(url,{...options,headers:{...githubHeaders(),...(options.headers||{})}});
-  const payload = await response.json().catch(()=>({}));
-  if(!response.ok) throw new Error(payload.message || `GitHub request failed (${response.status}).`);
-  return payload;
-}
-async function save(){
-  if(!github) throw new Error("Connect your GitHub repository first.");
-  const url = contentsUrl("index.html") + `?ref=${encodeURIComponent(github.branch)}`;
-  const current = await githubJson(url);
-  const html = new TextDecoder().decode(Uint8Array.from(atob(current.content.replace(/\n/g,"")),c=>c.charCodeAt(0)));
-  const replacement = `<script id="data" type="application/json">${JSON.stringify(DATA).replace(/</g,"\\u003c")}<\/script>`;
-  if(!/<script id="data" type="application\/json">[\s\S]*?<\/script>/.test(html)) throw new Error("Could not find the portfolio data block in index.html. Restore the updated portfolio file and try again.");
-  const updated = html.replace(/<script id="data" type="application\/json">[\s\S]*?<\/script>/,replacement);
-  await githubJson(contentsUrl("index.html"),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"Update portfolio content",content:b64FromText(updated),sha:current.sha,branch:github.branch})});
-}
-async function connectGitHub(){
-  const ownerName = $("#gh-owner").value.trim(), repoName = $("#gh-repo").value.trim(), branchName = $("#gh-branch").value.trim() || "main", token = $("#gh-token").value.trim();
-  const error = $("#gh-error"); error.textContent = "";
-  if(!ownerName || !repoName || !token){ error.textContent = "Enter the GitHub owner, repository, and access token."; return; }
-  const btn = $("[data-gh-connect]"); btn.disabled = true; btn.textContent = "Connecting…";
-  try{
-    github = {owner:ownerName,repo:repoName,branch:branchName,token};
-    await githubJson(`https://api.github.com/repos/${encodeURIComponent(ownerName)}/${encodeURIComponent(repoName)}`);
-    const file = await githubJson(contentsUrl("index.html")+`?ref=${encodeURIComponent(branchName)}`);
-    if(!file || !file.sha) throw new Error("index.html was not found on that branch.");
-    localStorage.setItem("portfolio-github-owner",ownerName); localStorage.setItem("portfolio-github-repo",repoName); localStorage.setItem("portfolio-github-branch",branchName);
-    assetsApi = {upload: async file => {
-      const safeName = file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]+/g,"-").replace(/^-+|-+$/g,"") || "image";
-      const path = `images/${Date.now()}-${safeName}`;
-      const bytes = new Uint8Array(await file.arrayBuffer());
-      await githubJson(contentsUrl(path),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:`Add portfolio image ${safeName}`,content:b64FromBytes(bytes),branch:github.branch})});
-      return {id:path.slice("images/".length)};
-    }};
-    owner = true; $("#admin-login").hidden = true; $("#gh-token").value = ""; render();
-  }catch(err){ github = null; assetsApi = null; owner = false; error.textContent = (err && err.message ? err.message : "Could not connect.") + " Check the repository name, branch, and token permissions."; }
-  finally{ btn.disabled = false; btn.textContent = "Connect"; }
-}
-function openAdminLogin(){
-  $("#gh-owner").value=localStorage.getItem("portfolio-github-owner")||"";
-  $("#gh-repo").value=localStorage.getItem("portfolio-github-repo")||"";
-  $("#gh-branch").value=localStorage.getItem("portfolio-github-branch")||"main";
-  $("#gh-error").textContent=""; $("#admin-login").hidden=false; $("#gh-token").focus();
-}
-
-document.addEventListener("click", async e => {
+document.addEventListener("click", e => {
   if(e.target.id === "car-img"){ const l = $("#lb"); l.querySelector("img").src = e.target.src; l.hidden = false; return; }
   if(e.target.closest("#lb")){ $("#lb").hidden = true; return; }
   const b = e.target.closest("button"); if(!b) return;
   const d = b.dataset;
-  if("adminLogin" in d){ openAdminLogin(); }
-  else if("ghCancel" in d){ $("#admin-login").hidden=true; }
-  else if("ghConnect" in d){ await connectGitHub(); }
-  else if("adminLogout" in d){ github=null; assetsApi=null; owner=false; render(); }
-  else if(d.go){ view = d.go; q = ""; render(); scrollTo(0,0); }
+  if(d.go){ view = d.go; q = ""; render(); scrollTo(0,0); }
   else if(d.post){ view = "post:" + d.post; render(); scrollTo(0,0); }
   else if(d.chip){ chip = d.chip; renderList(); }
   else if(d.car){ showSlide(slide + +d.car); }
-  else if(d.slide){ showSlide(+d.slide); }
+  else if(d.slide !== undefined){ showSlide(+d.slide); }
   else if("themeToggle" in d){
     const r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
     r.dataset.theme = dark ? "light" : "dark";
-  }
-  else if("aboutEdit" in d){ editAbout = true; renderAbout(); }
-  else if("aboutCancel" in d){ editAbout = false; renderAbout(); }
-  else if("aboutRm" in d){ const t = $("#about-text").value; DATA.aboutPhoto = null; DATA.about = t; renderAbout(); }
-  else if("aboutSave" in d){
-    const prev = [DATA.about, DATA.aboutPhoto];
-    DATA.about = $("#about-text").value.trim(); b.disabled = true; b.textContent = "Saving…";
-    try{
-      const f = $("#about-img") && $("#about-img").files[0];
-      if(f){ const r = await assetsApi.upload(f); DATA.aboutPhoto = r.id; }
-      await save();
-    }catch(err){ [DATA.about, DATA.aboutPhoto] = prev; b.disabled = false; b.textContent = "Save"; alert((err && err.message) || "Couldn’t save."); }
-  }
-  else if(d.del){
-    if(!confirm("Delete this post?")) return;
-    DATA.posts = DATA.posts.filter(p => p.id !== d.del);
-    try{ await save(); }catch(err){ alert((err && err.message) || "Couldn’t save."); }
-  } else if("add" in d){
-    const title = $("#f-title").value.trim(), text = $("#f-text").value.trim(), section = $("#f-sec").value;
-    const files = $("#f-img") ? [...$("#f-img").files] : [];
-    if(!title || (!text && !files.length)){ alert("Add a title and some text or images first."); return; }
-    b.disabled = true; b.textContent = "Publishing…";
-    let post;
-    try{
-      const images = [];
-      for(const f of files){ const r = await assetsApi.upload(f); images.push(r.id); }
-      post = {id:Date.now().toString(36),section,title,text,images,date:new Date().toISOString().slice(0,10)};
-      DATA.posts.push(post);
-      await save();
-    }catch(err){
-      b.disabled = false; b.textContent = "Publish post";
-      DATA.posts = DATA.posts.filter(x => x !== post);
-      alert((err && err.message) || "Couldn’t save.");
-    }
   }
 });
 document.addEventListener("input", e => { if(e.target.id === "q"){ q = e.target.value; renderList(); } });
@@ -345,11 +219,8 @@ document.addEventListener("touchend", e => {
   if(Math.abs(dx) > 45) showSlide(slide + (dx < 0 ? 1 : -1));
 }, {passive:true});
 addEventListener("scroll", setBar, {passive:true});
-
 $("#yr").textContent = new Date().getFullYear();
 render();
-// Owner mode is activated explicitly with the Owner login button.
-// The GitHub token is never stored in localStorage or embedded in this public file.
 </script>
 
 

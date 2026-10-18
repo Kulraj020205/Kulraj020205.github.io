@@ -29,7 +29,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);fon
 .about input[type=file]{display:block;width:100%;margin-bottom:.75rem;font:inherit;font-size:.9rem;color:var(--ink)}
 .about h2{margin:1rem 0 .6rem;font-size:1.6rem}
 .about p{margin:0 0 .9rem;font-size:1.05rem;line-height:1.6}
-.about textarea{display:block;width:100%;min-height:13rem;font:inherit;font-size:1rem;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:.6rem .75rem;margin-bottom:.6rem}
+.about textarea{display:block;width:100%;min-height:13rem;font:inherit;font-size:1rem;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:.6rem .75rem;margin-right:.75rem}
 .about .go{margin-right:.75rem}
 @media (min-width:60rem){.layout{grid-template-columns:17rem minmax(0,1fr)}#about{order:0;position:sticky;top:1.5rem;align-self:start}}
 [hidden]{display:none!important}
@@ -44,7 +44,7 @@ nav .brand{font-weight:800;font-size:1.3rem;color:var(--ink);margin-right:auto;b
 nav .theme{border:2px solid var(--line);border-radius:99px;padding:.25rem .9rem;font-size:.85rem}
 .title{font-family:var(--head);font-weight:800;font-size:clamp(2.9rem,11vw,5.8rem);line-height:.98;letter-spacing:-.035em;margin:3rem 0 1.1rem}
 .sub{color:var(--mute);margin:0 0 2.5rem;max-width:30rem}
-.tile{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;width:100%;text-align:left;background:var(--c);color:var(--on);border:0;border-radius:22px;padding:2.2rem 1.6rem;margin-bottom:.9rem;transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+.tile{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;width:100%;text-align:left;background:var(--c);color:var(--on);border:0;border-radius:22px;padding:2.2rem 1.6rem;margin-bottom:1rem;transition:transform .25s}
 .tile:hover{transform:translateX(.6rem) rotate(-.7deg)}
 .tile:active{transform:scale(.98)}
 .tile b{font-family:var(--head);font-weight:800;font-size:clamp(1.9rem,6vw,2.7rem);line-height:1.05;letter-spacing:-.02em;display:block}
@@ -89,7 +89,7 @@ h2{font-family:var(--head);font-weight:800;font-size:1.6rem;letter-spacing:-.02e
 .empty{color:var(--mute);margin-top:1.5rem}
 .composer{margin-top:3.5rem;padding:1.25rem;background:var(--panel);border:2px dashed var(--c1);border-radius:16px;font-family:var(--head)}
 .composer h3{margin:0 0 .75rem;font-size:1rem}
-.composer select,.composer input,.composer textarea{display:block;width:100%;font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:.6rem .75rem;margin-bottom:.6rem}
+.composer select,.composer input,.composer textarea{display:block;width:100%;font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:.55rem .75rem;box-sizing:border-box}
 .composer textarea{min-height:9rem;font-family:var(--serif)}
 .go{background:var(--c1);color:var(--on);border:0;border-radius:99px;padding:.7rem 1.4rem;font-family:var(--head);font-weight:800}
 .go[disabled]{opacity:.5}
@@ -109,7 +109,7 @@ footer{padding:3.5rem 0 2rem;font-family:var(--head);font-size:.85rem;color:var(
 </div>
 <div id="lb" hidden=""><img alt="Full size slide"></div>
 
-<script id="data" type="application/json">{"posts":[{"id":"appa1","section":"reviews","title":"I playtested Appa, and here’s why it should be on your radar","date":"2026-10-19","text":"A five-slide playtest review of Appa by Heat Death Studios.","images":["3fabda3c4e2a71436aeb297d812e5b52","1e1237226047bda801052f39b116c104","6b6c796c2e91148fb5a4d59598f33d3d","2338fa98bdaae7dcab1d37a52e71917e","08c7950e894e85ffe9cc4c2ad28910a0"]},{"id":"s2","section":"scripts","title":"Sample script: Chai at Midnight","date":"2026-10-19","text":"INT. TEA STALL - NIGHT\n\nA lone bulb hums. ASHA (20s) stirs a pot that is already done.\n\nASHA\nYou’re late.\n\nThe OLD MAN smiles and sits."},{"id":"s3","section":"writings","title":"Sample poem: Rooftop, Monsoon","date":"2026-10-19","text":"The sky clears its throat all afternoon.\nWe hang the laundry anyway.\n\nWhen the first drop lands on my wrist,\nit feels like being remembered."},{"id":"mveah3v5","section":"writings","title":"Oh wow","text":"hey so oh wow","images":[],"date":"2026-10-18"}],"about":"Hi, I’m Kulraj. I write reviews, scripts and short pieces, and I love video games.\n\nThis is where I keep my work. Take a look around.","aboutPhoto":"82bd8aaec5190a859f6227dc05e6ed4a"}</script>
+<script id="data" type="application/json">{"posts":[{"id":"appa1","section":"reviews","title":"I playtested Appa, and here’s why it should be on your radar","date":"2026-10-19","text":"A five-slide review of a short game that's all about energy, zones and momentum...","images":["appa-1.png","appa-2.png","appa-3.png","appa-4.png","appa-5.png"]}]}</script>
 
 <script>
 const DATA = JSON.parse(document.getElementById("data").textContent);
@@ -120,18 +120,39 @@ const SECTIONS = [
 ];
 let view = "home", owner = false, assetsApi = null, q = "", chip = "all", slide = 0, tx = null, editAbout = false;
 const DEFAULT_ABOUT = "Hi, I’m Kulraj. I write reviews, scripts and short pieces, and I love video games.\n\nThis is where I keep my work. Take a look around.";
+
+const cleanImageRef = value => {
+  if (value == null) return "";
+  if (typeof value === "object") {
+    if (value.url) return cleanImageRef(value.url);
+    if (value.path) return cleanImageRef(value.path);
+    if (value.id) return cleanImageRef(value.id);
+    return "";
+  }
+
+  const raw = String(value).trim();
+  if (!raw) return "";
+  if (/^(data:|https?:|\/\//i).test(raw)) return raw;
+  if (raw.startsWith("/_blob/") || raw.startsWith("/images/") || raw.startsWith("images/")) {
+    const clean = raw.replace(/^\.\//, "").replace(/^images\//i, "images/");
+    return clean.startsWith("/") ? clean : `/${clean}`;
+  }
+  return `/_blob/${raw.replace(/^images\//i, "")}`;
+};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");
+const sec = id => SECTIONS.find(s => s.id === id);
+const sorted = () => [...DATA.posts].sort((a,b) => (b.date + b.id).localeCompare(a.date + a.id));
+const img = id => cleanImageRef(id);
+const cur = () => view.startsWith("post:") ? DATA.posts.find(p => p.id === view.slice(5)) : null;
+
 function renderAbout(){
   const t = DATA.about || DEFAULT_ABOUT;
   $("#about").innerHTML = editAbout
-    ? `<h2>About me</h2><textarea id="about-text" aria-label="About me text">${esc(t)}</textarea>${assetsApi ? '<input type="file" id="about-img" accept="image/*" aria-label="Choose a photo">' : ""}${DATA.aboutPhoto ? '<p><button class="link" data-about-rm>Remove current photo</button></p>' : ""}<button class="go" data-about-save>Save</button><button class="link" data-about-cancel>Cancel</button>`
-    : `${DATA.aboutPhoto ? `<img class="av" src="/_blob/${esc(DATA.aboutPhoto)}" alt="Photo of Kulraj">` : '<div class="av" aria-hidden="true">K</div>'}<h2>About me</h2>${t.split("\n\n").filter(Boolean).map(x => `<p>${esc(x)}</p>`).join("")}${owner ? '<button class="link" data-about-edit>Edit about me</button>' : ""}`;
+    ? `<h2>About me</h2><textarea id="about-text" aria-label="About me text">${esc(t)}</textarea>${assetsApi ? '<input type="file" id="about-img" accept="image/*" aria-label="Choose a photo">' : ""}<div class="meta"><button class="go" data-about-save>Save</button><button class="link" data-about-cancel>Cancel</button>${DATA.aboutPhoto ? '<button class="link" data-about-rm>Remove photo</button>' : ""}</div>`
+    : `${DATA.aboutPhoto ? `<img class="av" src="${img(DATA.aboutPhoto)}" alt="Photo of Kulraj">` : '<div class="av" aria-hidden="true">K</div>'}<h2>About me</h2>${t.split("\n\n").filter(Boolean).map(p => `<p>${esc(p)}</p>`).join("")}${owner ? '<button class="link" data-about-edit>Edit about</button>' : ""}`;
 }
-const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-const sec = id => SECTIONS.find(s => s.id === id);
-const sorted = () => [...DATA.posts].sort((a,b) => (b.date + b.id).localeCompare(a.date + a.id));
-const img = id => "/_blob/" + esc(id);
-const cur = () => view.startsWith("post:") ? DATA.posts.find(p => p.id === view.slice(5)) : null;
 
 function rowHTML(p){
   const s = sec(p.section), first = (p.images || [])[0];
@@ -160,7 +181,7 @@ function postHTML(p){
 function showSlide(i){
   const p = cur(); if(!p || !p.images || !p.images.length) return;
   const n = p.images.length; slide = (i + n) % n;
-  const im = $("#car-img"); im.src = "/_blob/" + p.images[slide]; im.alt = `Slide ${slide+1} of ${n}: ${p.title}`;
+  const im = $("#car-img"); im.src = img(p.images[slide]); im.alt = `Slide ${slide+1} of ${n}: ${p.title}`;
   $("#car-count").textContent = `Slide ${slide+1} of ${n}. Tap the slide to zoom.`;
   document.querySelectorAll("[data-slide]").forEach(b => b.setAttribute("aria-current", +b.dataset.slide === slide));
 }
@@ -188,7 +209,7 @@ function composerHTML(){
 }
 
 function controls(chips){
-  return `<div class="tools"><label for="q" hidden>Search posts</label><input id="q" type="search" placeholder="Search posts" value="${esc(q)}">${chips ? '<div class="chips" id="chips"></div>' : ""}</div><div id="list" aria-live="polite"></div>`;
+  return `<div class="tools"><label for="q" hidden>Search posts</label><input id="q" type="search" placeholder="Search posts" value="${esc(q)}">${chips ? '<div class="chips" id="chips"></div>' : ""}</div>`;
 }
 
 function render(){
@@ -298,6 +319,5 @@ render();
   }catch(e){}
 })();
 </script>
-
 
 </body></html>
